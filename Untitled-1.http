@@ -1,0 +1,29 @@
+POST http://localhost:3000/api/product HTTP/1.1
+content-type: application/json
+
+{
+    "name": "",
+    "price": 100
+}
+
+###
+
+PUT http://localhost:3000/api/product/1 HTTP/1.1
+content-type: application/json
+
+{
+    "name": "UnCOEETE",
+    "price": 100
+}
+###
+
+PATCH  http://localhost:3000/api/product/1 HTTP/1.1
+content-type: application/json
+
+{
+    "name": "una computadora"
+}
+###
+
+DELETE   http://localhost:3000/api/product/3 HTTP/1.1
+content-type: application/json
