@@ -1,12 +1,11 @@
 const {
-  getAllProducts,
   findProductById,
   filterProducts,
   addProduct,
   replaceProduct,
   updateProductPartially,
   removeProduct,
-  getAllProductsAsync,
+  getProducts: getProductsFromService,
   paginateProducts,
   sortProducts,
 } = require("../services/product.service");
@@ -21,7 +20,7 @@ const getProducts = async (req, res) => {
 
   const products = hasFilters
     ? await filterProducts({ search, minPrice })
-    : await getAllProductsAsync();
+    : await getProductsFromService({ page, limit });
 
   const sortedProducts = sortProducts({
     products,

@@ -1,10 +1,86 @@
 const pool = require("../config/database");
 
-const findAll = async () => {
+const findAll = async ({
+  search,
+  minPrice,
+  sortBy = "id",
+  order = "asc",
+  page = 1,
+  limit = 5,
+} = {}) => {
+  const values = [];
+  const conditions = [];
+
+  if (search) {
+    values.push(`%${search}%`);
+    conditions.push(`name ILIKE $${values.length}`);
+  }
+
+  if (minPrice) {
+    values.push(Number(minPrice));
+    conditions.push(`price >= $${values.length}`);
+  }
+
+  const allowedSortFields = ["id", "name", "price", "created_at"];
+  const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : "id";
+
+  const safeOrder = order.toLowerCase() === "desc" ? "DESC" : "ASC";
+
+  const currentPage = Number(page) || 1;
+  const itemsPerPage = Number(limit) || 5;
+  const offset = (currentPage - 1) * itemsPerPage;
+
+  values.push(itemsPerPage);
+  const limitPlaceholder = `$${values.length}`;
+
+  values.push(offset);
+  const offsetPlaceholder = `$${values.length}`;
+
+  const whereClause =
+    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
   const result = await pool.query(
-    "SELECT id, name, price, created_at FROM products ORDER BY id ASC ",
+    `
+      SELECT id, name, price, created_at
+      FROM products
+      ${whereClause}
+      ORDER BY ${safeSortBy} ${safeOrder}
+      LIMIT ${limitPlaceholder}
+      OFFSET ${offsetPlaceholder}
+    `,
+    values,
   );
+
   return result.rows;
+};
+
+const countAll = async ({ search, minPrice } = {}) => {
+  const values = [];
+  const conditions = [];
+
+  if (search) {
+    values.push(`%${search}%`);
+    conditions.push(`name ILIKE $${values.length}`);
+  }
+
+  if (minPrice) {
+    values.push(Number(minPrice));
+    conditions.push(`price >= $${values.length}`);
+  }
+
+  const whereClause =
+    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  const result = await pool.query(
+    `
+      SELECT COUNT(*) AS total
+      FROM products
+      ${whereClause}
+    `,
+    values,
+  );
+
+  return Number(result.rows[0].total);
 };
 
 const findById = async (id) => {
@@ -81,6 +157,7 @@ const deleteById = async (id) => {
 
 module.exports = {
   findAll,
+  countAll,
   findById,
   create,
   replaceById,
