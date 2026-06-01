@@ -1,13 +1,10 @@
 const {
   findProductById,
-  filterProducts,
   addProduct,
   replaceProduct,
   updateProductPartially,
   removeProduct,
   getProducts: getProductsFromService,
-  paginateProducts,
-  sortProducts,
 } = require("../services/product.service");
 
 const AppError = require("../errors/AppError");
@@ -15,23 +12,13 @@ const sendResponse = require("../utils/sendResponse.js");
 
 const getProducts = async (req, res) => {
   const { search, minPrice, page, limit, sortBy, order } = req.query;
-
-  const hasFilters = search || minPrice;
-
-  const products = hasFilters
-    ? await filterProducts({ search, minPrice })
-    : await getProductsFromService({ page, limit });
-
-  const sortedProducts = sortProducts({
-    products,
-    sortBy,
-    order,
-  });
-
-  const result = paginateProducts({
-    products: sortedProducts,
+  const result = await getProductsFromService({
+    search,
+    minPrice,
     page,
     limit,
+    sortBy,
+    order,
   });
 
   return sendResponse(
