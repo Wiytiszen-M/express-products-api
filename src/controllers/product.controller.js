@@ -20,7 +20,7 @@ const getProducts = async (req, res) => {
   const hasFilters = search || minPrice;
 
   const products = hasFilters
-    ? filterProducts({ search, minPrice })
+    ? await filterProducts({ search, minPrice })
     : await getAllProductsAsync();
 
   const sortedProducts = sortProducts({

@@ -7,40 +7,36 @@ const {
   deleteById,
 } = require("../repository/product.repository");
 
-const getAllProductsAsync = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(findAll());
-    }, 500);
-  });
-};
-
-const getAllProducts = () => {
+const getAllProducts = async () => {
   return findAll();
 };
 
-const findProductById = (id) => {
+const getAllProductsAsync = async () => {
+  return findAll();
+};
+
+const findProductById = async (id) => {
   return findById(id);
 };
 
-const addProduct = ({ name, price }) => {
+const addProduct = async ({ name, price }) => {
   return create({ name, price });
 };
 
-const replaceProduct = (id, { name, price }) => {
+const replaceProduct = async (id, { name, price }) => {
   return replaceById(id, { name, price });
 };
 
-const updateProductPartially = (id, { name, price }) => {
+const updateProductPartially = async (id, { name, price }) => {
   return updateById(id, { name, price });
 };
 
-const removeProduct = (id) => {
+const removeProduct = async (id) => {
   return deleteById(id);
 };
 
-const filterProducts = ({ search, minPrice }) => {
-  let filteredProducts = findAll();
+const filterProducts = async ({ search, minPrice }) => {
+  let filteredProducts = await findAll();
 
   if (search) {
     filteredProducts = filteredProducts.filter((product) =>
@@ -50,7 +46,7 @@ const filterProducts = ({ search, minPrice }) => {
 
   if (minPrice) {
     filteredProducts = filteredProducts.filter(
-      (product) => product.price >= Number(minPrice),
+      (product) => Number(product.price) >= Number(minPrice),
     );
   }
 
