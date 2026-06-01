@@ -1,13 +1,6 @@
 const pool = require("../config/database");
 
-const findAll = async ({
-  search,
-  minPrice,
-  sortBy = "id",
-  order = "asc",
-  page = 1,
-  limit = 5,
-} = {}) => {
+const buildProductFilters = ({ search, minPrice } = {}) => {
   const values = [];
   const conditions = [];
 
@@ -20,6 +13,28 @@ const findAll = async ({
     values.push(Number(minPrice));
     conditions.push(`price >= $${values.length}`);
   }
+
+  const whereClause =
+    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  return {
+    whereClause,
+    values,
+  };
+};
+
+const findAll = async ({
+  search,
+  minPrice,
+  sortBy = "id",
+  order = "asc",
+  page = 1,
+  limit = 5,
+} = {}) => {
+  const { whereClause, values } = buildProductFilters({
+    search,
+    minPrice,
+  });
 
   const allowedSortFields = ["id", "name", "price", "created_at"];
   const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : "id";
@@ -30,14 +45,13 @@ const findAll = async ({
   const itemsPerPage = Number(limit) || 5;
   const offset = (currentPage - 1) * itemsPerPage;
 
-  values.push(itemsPerPage);
-  const limitPlaceholder = `$${values.length}`;
+  const queryValues = [...values];
 
-  values.push(offset);
-  const offsetPlaceholder = `$${values.length}`;
+  queryValues.push(itemsPerPage);
+  const limitPlaceholder = `$${queryValues.length}`;
 
-  const whereClause =
-    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+  queryValues.push(offset);
+  const offsetPlaceholder = `$${queryValues.length}`;
 
   const result = await pool.query(
     `
@@ -48,28 +62,17 @@ const findAll = async ({
       LIMIT ${limitPlaceholder}
       OFFSET ${offsetPlaceholder}
     `,
-    values,
+    queryValues,
   );
 
   return result.rows;
 };
 
 const countAll = async ({ search, minPrice } = {}) => {
-  const values = [];
-  const conditions = [];
-
-  if (search) {
-    values.push(`%${search}%`);
-    conditions.push(`name ILIKE $${values.length}`);
-  }
-
-  if (minPrice) {
-    values.push(Number(minPrice));
-    conditions.push(`price >= $${values.length}`);
-  }
-
-  const whereClause =
-    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+  const { whereClause, values } = buildProductFilters({
+    search,
+    minPrice,
+  });
 
   const result = await pool.query(
     `
