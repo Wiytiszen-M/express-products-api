@@ -6,12 +6,12 @@ const buildProductFilters = ({ search, minPrice } = {}) => {
 
   if (search) {
     values.push(`%${search}%`);
-    conditions.push(`name ILIKE $${values.length}`);
+    conditions.push(`products.name ILIKE $${values.length}`);
   }
 
   if (minPrice) {
     values.push(Number(minPrice));
-    conditions.push(`price >= $${values.length}`);
+    conditions.push(`products.price >= $${values.length}`);
   }
 
   const whereClause =
@@ -36,8 +36,15 @@ const findAll = async ({
     minPrice,
   });
 
-  const allowedSortFields = ["id", "name", "price", "created_at"];
-  const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : "id";
+  const allowedSortFields = {
+    id: "products.id",
+    name: "products.name",
+    price: "products.price",
+    created_at: "products.created_at",
+    category: "categories.name",
+  };
+
+  const safeSortBy = allowedSortFields[sortBy] || "products.id";
 
   const safeOrder = order.toLowerCase() === "desc" ? "DESC" : "ASC";
 
@@ -55,13 +62,21 @@ const findAll = async ({
 
   const result = await pool.query(
     `
-      SELECT id, name, price, created_at
-      FROM products
-      ${whereClause}
-      ORDER BY ${safeSortBy} ${safeOrder}
-      LIMIT ${limitPlaceholder}
-      OFFSET ${offsetPlaceholder}
-    `,
+    SELECT
+      products.id,
+      products.name,
+      products.price,
+      products.category_id,
+      categories.name AS category_name,
+      products.created_at
+    FROM products
+    JOIN categories
+      ON products.category_id = categories.id
+    ${whereClause}
+    ORDER BY ${safeSortBy} ${safeOrder}
+    LIMIT ${limitPlaceholder}
+    OFFSET ${offsetPlaceholder}
+  `,
     queryValues,
   );
 
@@ -78,6 +93,8 @@ const countAll = async ({ search, minPrice } = {}) => {
     `
       SELECT COUNT(*) AS total
       FROM products
+      JOIN categories
+        ON products.category_id = categories.id
       ${whereClause}
     `,
     values,
@@ -88,10 +105,23 @@ const countAll = async ({ search, minPrice } = {}) => {
 
 const findById = async (id) => {
   const result = await pool.query(
-    "SELECT id, name, price, created_at FROM products WHERE  id = $1",
+    `
+      SELECT
+        products.id,
+        products.name,
+        products.price,
+        products.category_id,
+        categories.name AS category_name,
+        products.created_at
+      FROM products
+      JOIN categories
+        ON products.category_id = categories.id
+      WHERE products.id = $1
+    `,
     [id],
   );
-  return result.rows;
+
+  return result.rows[0];
 };
 
 const create = async ({ name, price }) => {

@@ -35,7 +35,7 @@ const validatePatchProduct = ({ name, price }) => {
 };
 
 const validateProductQuery = ({ minPrice, page, limit, sortBy, order }) => {
-  const allowedSortFields = ["name", "price"];
+  const allowedSortFields = ["id", "name", "price", "created_at", "category"];
   const allowedOrderValues = ["asc", "desc"];
 
   if (minPrice !== undefined && Number.isNaN(Number(minPrice))) {
