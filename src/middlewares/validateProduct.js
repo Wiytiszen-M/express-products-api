@@ -26,9 +26,13 @@ const validateProductQueryRequest = (req, res, next) => {
 };
 
 const validateCreateProductRequest = (req, res, next) => {
-  const { name, price } = req.body;
+  const { name, price, category_id } = req.body;
 
-  const validationError = validateCreateProduct({ name, price });
+  const validationError = validateCreateProduct({
+    name,
+    price,
+    category_id,
+  });
 
   if (validationError) {
     throw new AppError(validationError, 400);
@@ -38,9 +42,13 @@ const validateCreateProductRequest = (req, res, next) => {
 };
 
 const validateUpdateProductRequest = (req, res, next) => {
-  const { name, price } = req.body;
+  const { name, price, category_id } = req.body;
 
-  const validationError = validateUpdateProduct({ name, price });
+  const validationError = validateUpdateProduct({
+    name,
+    price,
+    category_id,
+  });
 
   if (validationError) {
     throw new AppError(validationError, 400);
@@ -50,9 +58,13 @@ const validateUpdateProductRequest = (req, res, next) => {
 };
 
 const validatePatchProductRequest = (req, res, next) => {
-  const { name, price } = req.body;
+  const { name, price, category_id } = req.body;
 
-  const validationError = validatePatchProduct({ name, price });
+  const validationError = validatePatchProduct({
+    name,
+    price,
+    category_id,
+  });
 
   if (validationError) {
     throw new AppError(validationError, 400);

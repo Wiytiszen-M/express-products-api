@@ -1,4 +1,4 @@
-const validateCreateProduct = ({ name, price }) => {
+const validateCreateProduct = ({ name, price, category_id }) => {
   if (!name || typeof name !== "string") {
     return "Product name is required and must be a string";
   }
@@ -7,10 +7,18 @@ const validateCreateProduct = ({ name, price }) => {
     return "Product price must be a number greater than 0";
   }
 
+  if (
+    category_id === undefined ||
+    !Number.isInteger(Number(category_id)) ||
+    Number(category_id) <= 0
+  ) {
+    return "Product category_id is required and must be a positive integer";
+  }
+
   return null;
 };
 
-const validateUpdateProduct = ({ name, price }) => {
+const validateUpdateProduct = ({ name, price, category_id }) => {
   if (!name || typeof name !== "string") {
     return "Product name is required and must be a string";
   }
@@ -19,16 +27,30 @@ const validateUpdateProduct = ({ name, price }) => {
     return "Product price must be a number greater than 0";
   }
 
+  if (
+    category_id !== undefined &&
+    (!Number.isInteger(Number(category_id)) || Number(category_id) <= 0)
+  ) {
+    return "Product category_id must be a positive integer";
+  }
+
   return null;
 };
 
-const validatePatchProduct = ({ name, price }) => {
+const validatePatchProduct = ({ name, price, category_id }) => {
   if (name !== undefined && typeof name !== "string") {
     return "Product name must be a string";
   }
 
   if (price !== undefined && (typeof price !== "number" || price <= 0)) {
     return "Product price must be a number greater than 0";
+  }
+
+  if (
+    category_id !== undefined &&
+    (!Number.isInteger(Number(category_id)) || Number(category_id) <= 0)
+  ) {
+    return "Product category_id must be a positive integer";
   }
 
   return null;

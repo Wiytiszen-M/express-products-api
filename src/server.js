@@ -1,6 +1,7 @@
 const express = require("express");
 require("dotenv").config();
 const productRoutes = require("./routes/product.routes");
+const categoryRoutes = require("./routes/category.routes");
 const errorHandler = require("./middlewares/errorHandler");
 const notFound = require("./middlewares/notFound");
 const pool = require("./config/database");
@@ -12,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 app.use("/api/products", productRoutes);
-
+app.use("/api/categories", categoryRoutes);
 app.use(notFound);
 
 app.use(errorHandler);

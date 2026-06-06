@@ -124,34 +124,36 @@ const findById = async (id) => {
   return result.rows[0];
 };
 
-const create = async ({ name, price }) => {
+const create = async ({ name, price, category_id }) => {
   const result = await pool.query(
     `
-    INSERT INTO products (name,price)
-    VALUES ($1 $2)
-    RETURNING id, name, price, created_at
+      INSERT INTO products (name, price, category_id)
+      VALUES ($1, $2, $3)
+      RETURNING id, name, price, category_id, created_at
     `,
-    [name, price],
+    [name, price, category_id],
   );
 
   return result.rows[0];
 };
 
-const replaceById = async (id, { name, price }) => {
+const replaceById = async (id, { name, price, category_id }) => {
   const result = await pool.query(
     `
-    UPDATE products
-    SET name = $1
-        price =  $2
-    WHERE id = $3
-    RETURNING id, name , price, created_at
+      UPDATE products
+      SET name = $1,
+          price = $2,
+          category_id = $3
+      WHERE id = $4
+      RETURNING id, name, price, category_id, created_at
     `,
-    [name, price, id],
+    [name, price, category_id, id],
   );
+
   return result.rows[0];
 };
 
-const updateById = async (id, { name, price }) => {
+const updateById = async (id, { name, price, category_id }) => {
   const currentProduct = await findById(id);
 
   if (!currentProduct) {
@@ -160,16 +162,19 @@ const updateById = async (id, { name, price }) => {
 
   const updatedName = name !== undefined ? name : currentProduct.name;
   const updatedPrice = price !== undefined ? price : currentProduct.price;
+  const updatedCategoryId =
+    category_id !== undefined ? category_id : currentProduct.category_id;
 
   const result = await pool.query(
     `
       UPDATE products
       SET name = $1,
-          price = $2
-      WHERE id = $3
-      RETURNING id, name, price, created_at
+          price = $2,
+          category_id = $3
+      WHERE id = $4
+      RETURNING id, name, price, category_id, created_at
     `,
-    [updatedName, updatedPrice, id],
+    [updatedName, updatedPrice, updatedCategoryId, id],
   );
 
   return result.rows[0];

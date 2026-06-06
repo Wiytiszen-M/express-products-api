@@ -6,7 +6,9 @@ const {
   updateById,
   deleteById,
   countAll,
-} = require("../repository/product.repository");
+} = require("../repositories/product.repository");
+const categoryRepository = require("../repositories/category.repository");
+const AppError = require("../errors/AppError");
 
 const getProducts = async ({
   search,
@@ -48,16 +50,36 @@ const findProductById = async (id) => {
   return findById(id);
 };
 
-const addProduct = async ({ name, price }) => {
-  return create({ name, price });
+const addProduct = async ({ name, price, category_id }) => {
+  const category = await categoryRepository.findById(category_id);
+
+  if (!category) {
+    throw new AppError("Category not found", 404);
+  }
+
+  return create({
+    name,
+    price,
+    category_id,
+  });
 };
 
-const replaceProduct = async (id, { name, price }) => {
-  return replaceById(id, { name, price });
+const replaceProduct = async (id, { name, price, category_id }) => {
+  const category = await categoryRepository.findById(category_id);
+
+  if (!category) {
+    throw new AppError("Category not found", 404);
+  }
+
+  return replaceById(id, {
+    name,
+    price,
+    category_id,
+  });
 };
 
-const updateProductPartially = async (id, { name, price }) => {
-  return updateById(id, { name, price });
+const updateProductPartially = async (id, { name, price, category_id }) => {
+  return updateById(id, { name, price, category_id });
 };
 
 const removeProduct = async (id) => {

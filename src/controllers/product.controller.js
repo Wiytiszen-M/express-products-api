@@ -42,19 +42,27 @@ const getProductById = (req, res) => {
   return sendResponse(res, 200, "Product retrieved successfully", product);
 };
 
-const createProduct = (req, res) => {
-  const { name, price } = req.body;
+const createProduct = async (req, res) => {
+  const { name, price, category_id } = req.body;
 
-  const newProduct = addProduct({ name, price });
+  const newProduct = await addProduct({
+    name,
+    price,
+    category_id,
+  });
 
   return sendResponse(res, 201, "Product created successfully", newProduct);
 };
 
-const updateProduct = (req, res) => {
+const updateProduct = async (req, res) => {
   const { id } = req.params;
-  const { name, price } = req.body;
+  const { name, price, category_id } = req.body;
 
-  const updatedProduct = replaceProduct(id, { name, price });
+  const updatedProduct = await replaceProduct(id, {
+    name,
+    price,
+    category_id,
+  });
 
   if (!updatedProduct) {
     throw new AppError("Product not found", 404);
@@ -63,11 +71,15 @@ const updateProduct = (req, res) => {
   return sendResponse(res, 200, "Product updated successfully", updatedProduct);
 };
 
-const patchProduct = (req, res) => {
+const patchProduct = async (req, res) => {
   const { id } = req.params;
-  const { name, price } = req.body;
+  const { name, price, category_id } = req.body;
 
-  const updatedProduct = updateProductPartially(id, { name, price });
+  const updatedProduct = await updateProductPartially(id, {
+    name,
+    price,
+    category_id,
+  });
 
   if (!updatedProduct) {
     throw new AppError("Product not found", 404);
