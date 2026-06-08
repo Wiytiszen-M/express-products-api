@@ -22,6 +22,29 @@ const registerUser = async ({ name, email, password }) => {
   return newUser;
 };
 
+const loginUser = async ({ email, password }) => {
+  const user = await userRepository.findByEmail(email);
+
+  if (!user) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordValid) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    created_at: user.created_at,
+  };
+};
+
 module.exports = {
   registerUser,
+  loginUser,
 };
