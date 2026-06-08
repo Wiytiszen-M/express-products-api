@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const userRepository = require("../repositories/user.repository");
 const AppError = require("../errors/AppError");
+const generateToken = require("../utils/generateToken");
 
 const SALT_ROUNDS = 10;
 
@@ -35,12 +36,19 @@ const loginUser = async ({ email, password }) => {
     throw new AppError("Invalid email or password", 401);
   }
 
-  return {
+  const safeUser = {
     id: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
     created_at: user.created_at,
+  };
+
+  const token = generateToken(safeUser);
+
+  return {
+    user: safeUser,
+    token,
   };
 };
 
