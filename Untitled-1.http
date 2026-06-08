@@ -1,9 +1,11 @@
-POST http://localhost:3000/api/product HTTP/1.1
+POST http://localhost:3000/api/products HTTP/1.1
 content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJhZG1pbkB0ZXN0LmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MDkzODUzNCwiZXhwIjoxNzgxMDI0OTM0fQ.4uYSPbBo80hZ-CBMZDpQ52GVi7r7LBmWMKzZbam61X4
 
 {
-    "name": "Pinturas",
-    "price": 340
+  "name": "Gaming Chair",
+  "price": 250,
+  "category_id": 3
 }
 
 ###
@@ -34,8 +36,8 @@ POST http://localhost:3000/api/auth/register HTTP/1.1
 content-type: application/json
 
 {
-  "name": "Test User",
-  "email": "test@test.com",
+  "name": "Admin User",
+  "email": "admin@test.com",
   "password": "123456"
 }
 ### 
@@ -43,6 +45,6 @@ POST http://localhost:3000/api/auth/login HTTP/1.1
 content-type: application/json
 
 {
-  "email": "test@test.com",
-  "password": "wrong passworkd"
+   "email": "admin@test.com",
+  "password": "123456"
 }

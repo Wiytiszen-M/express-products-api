@@ -1,5 +1,6 @@
 const express = require("express");
 const authMiddleware = require("../middlewares/authMiddleware");
+const authorizeRoles = require("../middlewares/authorizeRoles");
 
 const {
   getProducts,
@@ -34,6 +35,7 @@ router.get("/:id", asyncHandler(getProductById));
 router.post(
   "/",
   authMiddleware,
+  authorizeRoles("admin"),
   validateRequest(createProductSchema, "body"),
   asyncHandler(createProduct),
 );
@@ -41,6 +43,7 @@ router.post(
 router.put(
   "/:id",
   authMiddleware,
+  authorizeRoles("admin"),
   validateRequest(updateProductSchema, "body"),
   asyncHandler(updateProduct),
 );
@@ -48,10 +51,16 @@ router.put(
 router.patch(
   "/:id",
   authMiddleware,
+  authorizeRoles("admin"),
   validateRequest(patchProductSchema, "body"),
   asyncHandler(patchProduct),
 );
 
-router.delete("/:id", authMiddleware, asyncHandler(deleteProduct));
+router.delete(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("admin"),
+  asyncHandler(deleteProduct),
+);
 
 module.exports = router;
