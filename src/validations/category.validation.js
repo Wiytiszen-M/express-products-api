@@ -1,11 +1,9 @@
-const validateCreateCategory = ({ name }) => {
-  if (!name || typeof name !== "string") {
-    return "Category name is required and must be a string";
-  }
+const { z } = require("zod");
 
-  return null;
-};
+const createCategorySchema = z.object({
+  name: z.string().min(1, "Category name is required"),
+});
 
 module.exports = {
-  validateCreateCategory,
+  createCategorySchema,
 };

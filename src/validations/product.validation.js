@@ -1,96 +1,60 @@
-const validateCreateProduct = ({ name, price, category_id }) => {
-  if (!name || typeof name !== "string") {
-    return "Product name is required and must be a string";
-  }
+const { z } = require("zod");
 
-  if (typeof price !== "number" || price <= 0) {
-    return "Product price must be a number greater than 0";
-  }
+const createProductSchema = z.object({
+  name: z.string().min(1, "Product name is required"),
+  price: z.number().positive("Product price must be a number greater than 0"),
+  category_id: z
+    .number()
+    .int("Product category_id must be an integer")
+    .positive("Product category_id must be a positive integer"),
+});
 
-  if (
-    category_id === undefined ||
-    !Number.isInteger(Number(category_id)) ||
-    Number(category_id) <= 0
-  ) {
-    return "Product category_id is required and must be a positive integer";
-  }
+const updateProductSchema = createProductSchema;
 
-  return null;
-};
+const patchProductSchema = createProductSchema.partial();
 
-const validateUpdateProduct = ({ name, price, category_id }) => {
-  if (!name || typeof name !== "string") {
-    return "Product name is required and must be a string";
-  }
+const productQuerySchema = z.object({
+  search: z.string().optional(),
 
-  if (typeof price !== "number" || price <= 0) {
-    return "Product price must be a number greater than 0";
-  }
+  minPrice: z
+    .string()
+    .optional()
+    .refine((value) => value === undefined || !Number.isNaN(Number(value)), {
+      message: "minPrice must be a valid number",
+    }),
 
-  if (
-    category_id !== undefined &&
-    (!Number.isInteger(Number(category_id)) || Number(category_id) <= 0)
-  ) {
-    return "Product category_id must be a positive integer";
-  }
+  page: z
+    .string()
+    .optional()
+    .refine(
+      (value) =>
+        value === undefined ||
+        (Number.isInteger(Number(value)) && Number(value) > 0),
+      {
+        message: "page must be a positive integer",
+      },
+    ),
 
-  return null;
-};
+  limit: z
+    .string()
+    .optional()
+    .refine(
+      (value) =>
+        value === undefined ||
+        (Number.isInteger(Number(value)) && Number(value) > 0),
+      {
+        message: "limit must be a positive integer",
+      },
+    ),
 
-const validatePatchProduct = ({ name, price, category_id }) => {
-  if (name !== undefined && typeof name !== "string") {
-    return "Product name must be a string";
-  }
+  sortBy: z.enum(["id", "name", "price", "created_at", "category"]).optional(),
 
-  if (price !== undefined && (typeof price !== "number" || price <= 0)) {
-    return "Product price must be a number greater than 0";
-  }
+  order: z.enum(["asc", "desc"]).optional(),
+});
 
-  if (
-    category_id !== undefined &&
-    (!Number.isInteger(Number(category_id)) || Number(category_id) <= 0)
-  ) {
-    return "Product category_id must be a positive integer";
-  }
-
-  return null;
-};
-
-const validateProductQuery = ({ minPrice, page, limit, sortBy, order }) => {
-  const allowedSortFields = ["id", "name", "price", "created_at", "category"];
-  const allowedOrderValues = ["asc", "desc"];
-
-  if (minPrice !== undefined && Number.isNaN(Number(minPrice))) {
-    return "minPrice must be a valid number";
-  }
-
-  if (
-    page !== undefined &&
-    (!Number.isInteger(Number(page)) || Number(page) <= 0)
-  ) {
-    return "page must be a positive integer";
-  }
-
-  if (
-    limit !== undefined &&
-    (!Number.isInteger(Number(limit)) || Number(limit) <= 0)
-  ) {
-    return "limit must be a positive integer";
-  }
-
-  if (sortBy !== undefined && !allowedSortFields.includes(sortBy)) {
-    return "sortBy must be one of: name, price";
-  }
-
-  if (order !== undefined && !allowedOrderValues.includes(order)) {
-    return "order must be one of: asc, desc";
-  }
-
-  return null;
-};
 module.exports = {
-  validateCreateProduct,
-  validateUpdateProduct,
-  validatePatchProduct,
-  validateProductQuery,
+  createProductSchema,
+  updateProductSchema,
+  patchProductSchema,
+  productQuerySchema,
 };

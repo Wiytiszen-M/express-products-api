@@ -1,8 +1,7 @@
 const express = require("express");
+const validateRequest = require("../middlewares/validateRequest");
 
-const {
-  validateCreateCategoryRequest,
-} = require("../middlewares/validateCategory");
+const { createCategorySchema } = require("../validations/category.validation");
 
 const asyncHandler = require("../utils/asyncHandler");
 const {
@@ -17,6 +16,10 @@ router.get("/", asyncHandler(getCategories));
 
 router.get("/:id", asyncHandler(getCategoryById));
 
-router.post("/", validateCreateCategoryRequest, asyncHandler(createCategory));
+router.post(
+  "/",
+  validateRequest(createCategorySchema, "body"),
+  asyncHandler(createCategory),
+);
 
 module.exports = router;

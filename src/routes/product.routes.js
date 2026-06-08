@@ -9,26 +9,44 @@ const {
   deleteProduct,
 } = require("../controllers/product.controller");
 
+const validateRequest = require("../middlewares/validateRequest");
+
 const {
-  validateCreateProductRequest,
-  validateUpdateProductRequest,
-  validatePatchProductRequest,
-  validateProductQueryRequest,
-} = require("../middlewares/validateProduct");
+  createProductSchema,
+  updateProductSchema,
+  patchProductSchema,
+  productQuerySchema,
+} = require("../validations/product.validation");
 
 const asyncHandler = require("../utils/asyncHandler");
 
 const router = express.Router();
 
-router.get("/", validateProductQueryRequest, asyncHandler(getProducts));
+router.get(
+  "/",
+  validateRequest(productQuerySchema, "query"),
+  asyncHandler(getProducts),
+);
 
 router.get("/:id", asyncHandler(getProductById));
 
-router.post("/", validateCreateProductRequest, asyncHandler(createProduct));
+router.post(
+  "/",
+  validateRequest(createProductSchema, "body"),
+  asyncHandler(createProduct),
+);
 
-router.put("/:id", validateUpdateProductRequest, asyncHandler(updateProduct));
+router.put(
+  "/:id",
+  validateRequest(updateProductSchema, "body"),
+  asyncHandler(updateProduct),
+);
 
-router.patch("/:id", validatePatchProductRequest, asyncHandler(patchProduct));
+router.patch(
+  "/:id",
+  validateRequest(patchProductSchema, "body"),
+  asyncHandler(patchProduct),
+);
 
 router.delete("/:id", asyncHandler(deleteProduct));
 
