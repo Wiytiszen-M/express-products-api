@@ -5,12 +5,20 @@ const categoryRoutes = require("./routes/category.routes");
 const errorHandler = require("./middlewares/errorHandler");
 const notFound = require("./middlewares/notFound");
 const pool = require("./config/database");
+const cors = require("cors");
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "*",
+  }),
+);
 
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
