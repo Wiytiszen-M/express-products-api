@@ -12,8 +12,8 @@ export const createProduct = ({ name, price, category_id, token }) => {
     },
     body: JSON.stringify({
       name,
-      price,
-      category_id,
+      price: Number(price),
+      category_id: Number(category_id),
     }),
   });
 };

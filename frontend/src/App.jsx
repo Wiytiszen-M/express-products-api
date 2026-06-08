@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { login } from "./api/authApi";
-import { getProducts } from "./api/productsApi";
+import { createProduct, getProducts } from "./api/productsApi";
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -22,25 +22,39 @@ function App() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState("");
 
+  const [productForm, setProductForm] = useState({
+    name: "",
+    price: "",
+    category_id: "",
+  });
+
+  const [isCreatingProduct, setIsCreatingProduct] = useState(false);
+  const [createProductError, setCreateProductError] = useState("");
+  const [createProductSuccess, setCreateProductSuccess] = useState("");
+
+  const loadProducts = useCallback(async () => {
+    try {
+      setIsLoadingProducts(true);
+      setProductsError("");
+
+      const response = await getProducts();
+
+      setProducts(response.data);
+      setMeta(response.meta);
+    } catch (error) {
+      setProductsError(error.message);
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  }, []);
+
   useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        setIsLoadingProducts(true);
-        setProductsError("");
-
-        const response = await getProducts();
-
-        setProducts(response.data);
-        setMeta(response.meta);
-      } catch (error) {
-        setProductsError(error.message);
-      } finally {
-        setIsLoadingProducts(false);
-      }
+    const fetchProducts = async () => {
+      await loadProducts();
     };
 
-    loadProducts();
-  }, []);
+    fetchProducts();
+  }, [loadProducts]);
 
   const handleLoginChange = (event) => {
     const { name, value } = event.target;
@@ -80,6 +94,46 @@ function App() {
     setUser(null);
     setToken("");
     localStorage.removeItem("token");
+  };
+
+  const handleProductChange = (event) => {
+    const { name, value } = event.target;
+
+    setProductForm((currentForm) => ({
+      ...currentForm,
+      [name]: value,
+    }));
+  };
+
+  const handleCreateProductSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      setIsCreatingProduct(true);
+      setCreateProductError("");
+      setCreateProductSuccess("");
+
+      await createProduct({
+        name: productForm.name,
+        price: productForm.price,
+        category_id: productForm.category_id,
+        token,
+      });
+
+      setProductForm({
+        name: "",
+        price: "",
+        category_id: "",
+      });
+
+      setCreateProductSuccess("Product created successfully");
+
+      await loadProducts();
+    } catch (error) {
+      setCreateProductError(error.message);
+    } finally {
+      setIsCreatingProduct(false);
+    }
   };
 
   return (
@@ -132,6 +186,54 @@ function App() {
           </form>
         )}
       </section>
+
+      {user?.role === "admin" && (
+        <section>
+          <h2>Create Product</h2>
+
+          <form onSubmit={handleCreateProductSubmit}>
+            <div>
+              <label htmlFor="product-name">Name</label>
+              <input
+                id="product-name"
+                name="name"
+                type="text"
+                value={productForm.name}
+                onChange={handleProductChange}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="product-price">Price</label>
+              <input
+                id="product-price"
+                name="price"
+                type="number"
+                value={productForm.price}
+                onChange={handleProductChange}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="product-category">Category ID</label>
+              <input
+                id="product-category"
+                name="category_id"
+                type="number"
+                value={productForm.category_id}
+                onChange={handleProductChange}
+              />
+            </div>
+
+            <button type="submit" disabled={isCreatingProduct}>
+              {isCreatingProduct ? "Creating..." : "Create product"}
+            </button>
+
+            {createProductError && <p>Error: {createProductError}</p>}
+            {createProductSuccess && <p>{createProductSuccess}</p>}
+          </form>
+        </section>
+      )}
 
       <section>
         <h2>Products</h2>
