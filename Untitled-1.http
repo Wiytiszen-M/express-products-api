@@ -2,8 +2,8 @@ POST http://localhost:3000/api/product HTTP/1.1
 content-type: application/json
 
 {
-    "name": "",
-    "price": 100
+    "name": "Pinturas",
+    "price": 340
 }
 
 ###
@@ -27,3 +27,14 @@ content-type: application/json
 
 DELETE   http://localhost:3000/api/product/3 HTTP/1.1
 content-type: application/json
+
+
+### 
+POST http://localhost:3000/api/auth/register HTTP/1.1
+content-type: application/json
+
+{
+  "name": "Martin",
+  "email": "martin@test.com",
+  "password": "123456"
+}

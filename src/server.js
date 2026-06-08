@@ -2,6 +2,7 @@ const express = require("express");
 require("dotenv").config();
 const productRoutes = require("./routes/product.routes");
 const categoryRoutes = require("./routes/category.routes");
+const authRoutes = require("./routes/auth.routes");
 const errorHandler = require("./middlewares/errorHandler");
 const notFound = require("./middlewares/notFound");
 const pool = require("./config/database");
@@ -22,6 +23,7 @@ app.use(
 
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/auth", authRoutes);
 app.use(notFound);
 
 app.use(errorHandler);
