@@ -1,4 +1,5 @@
 const express = require("express");
+const authMiddleware = require("../middlewares/authMiddleware");
 
 const {
   getProducts,
@@ -32,22 +33,25 @@ router.get("/:id", asyncHandler(getProductById));
 
 router.post(
   "/",
+  authMiddleware,
   validateRequest(createProductSchema, "body"),
   asyncHandler(createProduct),
 );
 
 router.put(
   "/:id",
+  authMiddleware,
   validateRequest(updateProductSchema, "body"),
   asyncHandler(updateProduct),
 );
 
 router.patch(
   "/:id",
+  authMiddleware,
   validateRequest(patchProductSchema, "body"),
   asyncHandler(patchProduct),
 );
 
-router.delete("/:id", asyncHandler(deleteProduct));
+router.delete("/:id", authMiddleware, asyncHandler(deleteProduct));
 
 module.exports = router;
